@@ -5,6 +5,13 @@ class BCD {
     // привести к строке, чтобы иметь доступ к каждой цифре
     let numberToString = num.toString();
 
+    // обработка отрицательных чисел
+    if (num < 0) {
+      for (let i = 0; i < 4; i++) {
+        this.numbers.push(1); // Дополнение до 9 (1111 в двоичной системе)
+      }
+    }
+
     // Преобразую каждую цифры в BCD и сохраняю в массив numbers
     for (let i = 0; i < numberToString.length; i++) {
       // каждую цифру привести к десятичному числу
@@ -21,7 +28,7 @@ class BCD {
   get(index: number): number {
     // Обработка отрицательных индексов
     if (index < 0) {
-      index += this.numbers.length;
+      index += Math.ceil(this.numbers.length / 4);
     }
     // Проверка на выход за границы массива
     if (index < 0 || index >= this.numbers.length) {
