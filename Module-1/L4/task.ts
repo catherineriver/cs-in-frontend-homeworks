@@ -2,21 +2,33 @@ class BCD {
   private numbers: number[] = [];
 
   constructor(num: number) {
-    // привести к строке, чтобы иметь доступ к каждому числу
+    // привести к строке, чтобы иметь доступ к каждой цифре
     let numberToString = num.toString();
-    let BCDNumber = '';
 
+    // обработка отрицательных чисел
+    if (num < 0) {
+      for (let i = 0; i < 4; i++) {
+        this.numbers.push(1); // Дополнение до 9 (1111 в двоичной системе)
+      }
+    }
+
+    // Преобразую каждую цифры в BCD и сохраняю в массив numbers
     for (let i = 0; i < numberToString.length; i++) {
       // каждую цифру привести к десятичному числу
       let digit = parseInt(numberToString[i], 10);
       let binaryDigit = digit.toString(2).padStart(4, '0');
-      BCDNumber += binaryDigit;
+
+      // Сохраняю каждый бит BCD в массиве numbers
+      for (let j = 0; j < binaryDigit.length; j++) {
+        this.numbers.push(parseInt(binaryDigit[j]));
+      }
     }
   }
+  
   get(index: number): number {
     // Обработка отрицательных индексов
     if (index < 0) {
-      index += this.numbers.length;
+      index += Math.ceil(this.numbers.length / 4);
     }
     // Проверка на выход за границы массива
     if (index < 0 || index >= this.numbers.length) {
@@ -25,14 +37,18 @@ class BCD {
     // Получение значения по индексу
     return this.numbers[index];
   }
+
+  valueOf(): string {
+    return this.numbers.join('');
+  }
 }
 
 const n = new BCD(65536);
 
-console.log(n); // 0b01100101010100110110 или 415030
+console.log(n);
+console.log(n.valueOf());
 
-console.log(n.get(0)); // 6
-console.log(n.get(1)); // 3
-
-console.log(n.get(-1)); // 6
-console.log(n.get(-2)); // 5
+console.log(n.get(0)); // 0
+console.log(n.get(1)); // 1
+console.log(n.get(2)); // 1
+// и т.д.
