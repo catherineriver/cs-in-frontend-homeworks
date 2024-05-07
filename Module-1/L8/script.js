@@ -6,15 +6,18 @@ class VectorIterator {
   }
 
   next() {
-    if (this.currentIndex < this.vector.length) {
+    this.vector.buffer = this.vector.buffer.slice(0, this.vector.length);  // slice to actual length
+
+    if (this.currentIndex < this.vector.buffer.length) {
       return {
         done: false,
-        value: this.vector[this.currentIndex++]
+        value: this.vector.buffer[this.currentIndex++]
       };
     } else {
       this.done = true;
       return {
-        done: true
+        done: true,
+        value: undefined
       };
     }
   }
@@ -27,8 +30,8 @@ class Vector {
     } = options || {};
     this.capacity = capacity;
     this.length = 0;
-    // all store here
-    this.buffer = new data();
+    // all data store here
+    this.buffer = new data(this.capacity);
   }
 
   push(value) {
@@ -61,24 +64,24 @@ class Vector {
   }
 
   values() {
-    return new VectorIterator(this.buffer);
+    return new VectorIterator(this);
   }
 }
 
-const vec = new Vector(Int32Array, {
+const vec = new Vector(Int32Array, {  
   capacity: 1
 });
 const i = vec.values();
 
-vec.push(1); // Возвращает длину - 1
-vec.push(2); // 2
-vec.push(3); // 
+vec.push(1);
+vec.push(2);
+vec.push(3);
 
 console.log(i.next()); // {done: false, value: 1}
 console.log(i.next()); // {done: false, value: 2}
 console.log(i.next()); // {done: false, value: 3}
 console.log(i.next()); // {done: true, value: undefined}
 
-console.log('capacity', vec.capacity); // 8
-console.log('length', vec.length); // 5
-console.log('Ссылка на ArrayBuffer', vec.buffer[0]); // Ссылка на ArrayBuffer
+console.log('capacity', vec.capacity);
+console.log('length', vec.length); 
+console.log('Ссылка на ArrayBuffer', vec); 
