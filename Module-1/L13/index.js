@@ -6,7 +6,6 @@ class Matrix {
         this.cols = cols;
         this.data = new arrayType(rows * cols);
     }
-
     // так как используется одномерный типизированный массив, 
     // нужно  преобразовать двумерные координаты (строка и столбец) в одномерный индекс
     // чтобы правильно получить доступ к элементам матрицы
@@ -35,54 +34,93 @@ class Matrix {
 
 class Graph {
     constructor(matrix) {
-        this.matrix = matrix;
+      this.matrix = matrix;
     }
-
-    // Проверить, существует ли ребро или дуга между узлами node1 и node2.
+  
     checkAdjacency(node1, node2) {
-        return this.matrix.getValue(node1, node2) !== 0;
+      return this.matrix.getValue(node1, node2) !== 0;
     }
-
+  
     createEdge(node1, node2, weight = 1) {
-        // Этот вызов метода setValue устанавливает вес ребра от node1 к node2 в матрице смежности.
-        // WTF is вес ребра? 
-        // Вес — это стоимость использования данного ребра.
-        this.matrix.setValue(node1, node2, weight);
-        this.matrix.setValue(node2, node1, weight);
+      this.matrix.setValue(node1, node2, weight);
+      this.matrix.setValue(node2, node1, weight);
     }
-
+  
     removeEdge(node1, node2) {
-        // чтобы удалить, меняем вес на 0
-        this.matrix.setValue(node1, node2, 0);
-        this.matrix.setValue(node2, node1, 0);
+      this.matrix.setValue(node1, node2, 0);
+      this.matrix.setValue(node2, node1, 0);
     }
-
+  
     createArc(node1, node2, weight = 1) {
-        this.matrix.setValue(node1, node2, weight);
+      this.matrix.setValue(node1, node2, weight);
     }
-
+  
     removeArc(node1, node2) {
-        // чтобы удалить, меняем вес на 0
-        this.matrix.setValue(node1, node2, 0);
+      this.matrix.setValue(node1, node2, 0);
     }
-
-    // А в чем разница между edge и arc?
-    // Ребро (Edge)
-    // Ребро (иногда также называют гранью) — это соединение между двумя узлами (вершинами) в неориентированном графе. Ребра не имеют направления.
-    // Между А и B можно перемещаться в обе стороны
-
-    // Дуга (Arc)
-    // Дуга — это направленное соединение между двумя узлами в ориентированном графе. Дуги имеют направление, указывающее от одного узла к другому.
-    // Между А и B можно перемещаться в одну сторону
-}
-
+  
+    getEdgeWeight(node1, node2) {
+      return this.matrix.getValue(node1, node2);
+    }
+  
+    traverseBFS(startNode, callback) {
+      const visited = new Array(this.matrix.rows).fill(false);
+      const queue = [startNode];
+      const result = [];
+  
+      visited[startNode] = true;
+  
+      while (queue.length > 0) {
+        const node = queue.shift();
+        result.push(node);
+  
+        if (callback) {
+          callback(node);
+        }
+  
+        for (let i = 0; i < this.matrix.cols; i++) {
+          if (this.checkAdjacency(node, i) && !visited[i]) {
+            queue.push(i);
+            visited[i] = true;
+          }
+        }
+      }
+  
+      return result;
+    }
+  }
+  
+  
+  
 
 const adjacencyMatrix = new Matrix(Uint8Array, 10, 10);
 const graph = new Graph(adjacencyMatrix);
-graph.checkAdjacency(1, 2)
-graph.createEdge(7, 2, 10);
-graph.removeEdge(7, 2);
-graph.createArc(7, 2, 6);
-graph.removeArc(7, 2);
 
-console.log(adjacencyMatrix)
+graph.createEdge(0, 1, 5);
+graph.createEdge(0, 2, 3);
+graph.createEdge(1, 2, 2);
+graph.createEdge(1, 3, 4);
+graph.createEdge(2, 4, 1);
+graph.createEdge(3, 4, 7);
+graph.createEdge(3, 5, 6);
+graph.createEdge(4, 6, 8);
+
+graph.createArc(5, 7, 9);
+graph.createArc(6, 8, 4);
+graph.createArc(7, 9, 3);
+graph.createArc(8, 9, 2);
+graph.createArc(9, 5, 1);
+
+
+graph.traverseBFS(7, (node) => {
+    console.log(`Посещен узел: ${node}`);
+
+    for (let i = 0; i < adjacencyMatrix.cols; i++) {
+        if (graph.checkAdjacency(node, i)) {
+          console.log(`Вес ребра между ${node} и ${i}: ${graph.getEdgeWeight(node, i)}`);
+        }
+      }
+
+  });
+
+console.log(adjacencyMatrix.data)
