@@ -1,3 +1,6 @@
+const util = require('util');
+const graphviz = require('graphviz');
+
 // Реализовать класс для представления графа с помощью матрицы смежности
 
 class Matrix {
@@ -124,3 +127,30 @@ graph.traverseBFS(7, (node) => {
   });
 
 console.log(adjacencyMatrix.data)
+
+// Создание графа с использованием graphviz
+const g = graphviz.digraph("G");
+
+// Добавление узлов
+for (let i = 0; i < adjacencyMatrix.rows; i++) {
+  g.addNode(i.toString());
+}
+
+// Добавление ребер (или дуг) с весами
+for (let i = 0; i < adjacencyMatrix.rows; i++) {
+  for (let j = 0; j < adjacencyMatrix.cols; j++) {
+    const weight = adjacencyMatrix.getValue(i, j);
+    if (weight !== 0) {
+      g.addEdge(i.toString(), j.toString(), { label: weight.toString() });
+    }
+  }
+}
+
+// Сохранение графа в файл
+g.output("png", "graph.png", (code, out, err) => {
+  if (err) {
+    console.error("Ошибка при создании файла: ", err);
+  } else {
+    console.log("Граф сохранен в файл graph.png");
+  }
+});
