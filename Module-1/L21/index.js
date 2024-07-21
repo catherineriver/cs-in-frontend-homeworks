@@ -134,9 +134,18 @@ function* zip(...iterables) {
 }
 
 // Необходимо написать функцию, которая принимала бы любой Iterable объект и Iterable с функциями и возвращала итератор где каждому элементу левого Iterable последовательно применяются все функции из правого
-function* mapSeq(...iterables, iterator) {
-  
-
+function* mapSeq(iterables, functions) {
+  //   Внешний цикл for (const element of elements) проходит по каждому элементу.
+  for (const item of iterables) {
+    // сохраняем результат в переменную, чтобы использовать внутри функции
+      let result = item;
+      // Внутренний цикл for (const fn of functions) проходит по каждой функции.
+      for (const foo of functions) {
+        // Применяем каждую функцию к текущему элементу и обновляем его.
+        result = foo(result);
+      }
+      yield result;
+  }
 }
 
 const randomInt = random(0, 1000);
@@ -150,7 +159,6 @@ const randomInt = random(0, 1000);
 // console.log(Array.from(numberRange.reverse())); // [1, 0, -1, -2, -3, -4, -5]
 // console.log(...seq([1, 2], new Set([3, 4]), 'bla')); // 1, 2, 3, 4, 'b', 'l', 'a'
 // console.log(...zip([1, 2], new Set([3, 4]), 'bl')); // [[1, 3, b], [2, 4, 'l']]
-
 console.log(...mapSeq([1, 2, 3], [(el) => el * 2, (el) => el - 1])); // [1, 3, 5]
 
 
