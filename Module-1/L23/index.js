@@ -6,38 +6,44 @@ const newString = "8.9 ghi 10.11 jkl";
 const numbers = getNumbers(someString);
 
 try {
-  console.log(...numbers);
-
+  for (const number of numbers) {
+    console.log(number);
+  }
+  
 } catch (e) {
   console.log(e);
   numbers.next(newString);
 }
 
-function splitString(input) {
-  return input.split(/\s+/);
-}
-
 function* getNumbers(input) {
-  let data = input;
+  const state = {
+    READING: 'reading',
+    WAITING_FOR_INPUT: 'waiting'
+  };
+
+  let currentState = state.READING;
   const regexp = /-?\d+\.\d+/g;
+  let arr = input.match(regexp);
+  
 
   while (true) {
-    const arr = data.match(regexp) || [];
-    let found = false;
-
-    for (const item of arr) {
-      yield item;
-      found = true;
-    }
-
-    if (!found) {
-      try {
-        data = yield new Error("Data stream exhausted. Expecting new input.");
-      } catch (e) {
-        return;
+    if (currentState === state.READING) {
+      if (arr.length === 0) {
+        currentState = state.WAITING_FOR_INPUT;
+      } else {
+        for (const item of arr) {
+          yield item;
+        }
+        arr = []; // ждем новые данные
       }
-    } else {
-      data = '';
+    }
+    
+    if (currentState === state.WAITING_FOR_INPUT) {
+      arr = yield new Error("Data stream exhausted. Expecting new input.");
+      if (arr === undefined) return;
+      
+      arr = arr.match(/-?\d+\.\d+/g); // Обновляем массив с новыми данными
+      currentState = state.READING; 
     }
   }
 }
